@@ -24,25 +24,32 @@ namespace WebServiceSample.Infrastructure.Aspects
         public void Intercept(IInvocation invocation)
         {
             logger = GetTargetClassLogger(invocation.TargetType);
-            logger.Trace($"method start");
-            var aspectAttribute = GetAspectAttribute(invocation.MethodInvocationTarget);
-            if (aspectAttribute == null)
+            try
             {
-                invocation.Proceed();
-                return;
+                logger.Trace($"{invocation.TargetType.FullName}#{invocation.MethodInvocationTarget.Name} method start");
+                var aspectAttribute = GetAspectAttribute(invocation.MethodInvocationTarget);
+                if (aspectAttribute == null)
+                {
+                    invocation.Proceed();
+                    return;
+                }
+                var t = aspectAttribute.Type;
+                using (var scope = ComponentManager.Current.OpenScope())
+                {
+                    var service = scope.Resolve(aspectAttribute.Type);
+                    var method = t.GetMethod(invocation.Method.Name);
+                    var returnValue = method.Invoke(service, invocation.Arguments);
+                    invocation.ReturnValue = returnValue;
+                }
             }
-            var t = aspectAttribute.Type;
-            using (var scope = ComponentManager.GetContainer().OpenScope())
+            finally
             {
-                var service = scope.Resolve(aspectAttribute.Type);
-                var method = t.GetMethod(invocation.Method.Name);
-                var returnValue = method.Invoke(service, invocation.Arguments);
-                invocation.ReturnValue = returnValue;
+                logger.Trace($"{invocation.TargetType.FullName}#{invocation.MethodInvocationTarget.Name} method end");
             }
-            logger.Trace($"method end");
         }
         private ILogger GetTargetClassLogger(Type targetClass)
         {
+
             var logger = LogManager.GetLogger(targetClass.FullName);
             return logger;
         }

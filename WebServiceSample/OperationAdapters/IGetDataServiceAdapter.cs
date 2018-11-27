@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
-using WebServiceSample.DependencyInjection.Attributes;
+using WebServiceSample.Infrastructure.Behavioirs;
+using WebServiceSample.Domain.Services;
 
-namespace WebServiceSample.Domain.Services
+namespace WebServiceSample.OperationAdapters
 {
-    [Service]
-    public interface IGetDataService
+    [OperationAdapter]
+    public interface IGetDataServiceAdatper
     {
         string GetData(int value);
-
         CompositeType GetDataUsingDataContract(CompositeType composite);
     }
+
 }

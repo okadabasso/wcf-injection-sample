@@ -6,7 +6,7 @@ using WebServiceSample.Infrastructure.Behavioirs;
 namespace WebServiceSample.Infrastructure.Behavioirs
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = true)]
-    public class SampleContractBehaviorAttribute : Attribute, IContractBehavior, IContractBehaviorAttribute
+    public class ServiceContractBehaviorAttribute : Attribute, IContractBehavior, IContractBehaviorAttribute
     {
         private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
 
@@ -20,7 +20,7 @@ namespace WebServiceSample.Infrastructure.Behavioirs
 
         public void ApplyDispatchBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, System.ServiceModel.Dispatcher.DispatchRuntime dispatchRuntime)
         {
-            dispatchRuntime.InstanceProvider = new SampleInstanceProvider();
+            dispatchRuntime.InstanceProvider = new ServiceInstanceProvider();
         }
 
         public void Validate(ContractDescription contractDescription, ServiceEndpoint endpoint)

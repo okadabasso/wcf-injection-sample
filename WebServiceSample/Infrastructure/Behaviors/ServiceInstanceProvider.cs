@@ -6,14 +6,18 @@ using System.ServiceModel.Dispatcher;
 using DryIoc;
 using WebServiceSample.Infrastructure.Aspects;
 using WebServiceSample.Infrastructure.ComponentManagement;
+using WebServiceSample.OperationAdapters;
+using WebServiceSample.OperationAdapters.Implementation;
+using WebServiceSample.Domain.Services;
+using WebServiceSample.Domain.Services.Implementation;
 
 namespace WebServiceSample.Infrastructure.Behavioirs
 {
-    public class SampleInstanceProvider : IInstanceProvider
+    public class ServiceInstanceProvider : IInstanceProvider
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public SampleInstanceProvider()
+        public ServiceInstanceProvider()
         {
         }
 
@@ -35,12 +39,18 @@ namespace WebServiceSample.Infrastructure.Behavioirs
             {
                 throw new InvalidOperationException();
             }
-            ComponentManager.Configure();
-            var container = ComponentManager.GetContainer();
-            container.Register(type, ifAlreadyRegistered: IfAlreadyRegistered.Keep);
-            container.Intercept<ServiceOperationAspect>(type);
+
+            // 各所でDIコンテナを共有するためコンテナをSingletonにしておく
+            // (ただし注意しないと意図せずServiceLocator化してしまう
+            var container = ComponentManager.Current;
+
+            // WCF Service contract
+            container.Register<Service1>(ifAlreadyRegistered: IfAlreadyRegistered.Keep);
+            container.Intercept<Service1, ServiceOperationAspect>();
 
             this.ServiceInstance = container.Resolve(type);
+            
+            // 常駐スレッドの起動
             RunWorkersThreads();
 
             return this.ServiceInstance;

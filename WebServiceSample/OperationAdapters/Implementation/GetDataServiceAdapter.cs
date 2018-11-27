@@ -7,14 +7,8 @@ using NLog;
 using WebServiceSample.Infrastructure.Behavioirs;
 using WebServiceSample.Domain.Services;
 
-namespace WebServiceSample.OperationAdapters
+namespace WebServiceSample.OperationAdapters.Implementation
 {
-    [OperationAdapter]
-    public interface IGetDataServiceAdatper
-    {
-        string GetData(int value);
-        CompositeType GetDataUsingDataContract(CompositeType composite);
-    }
     public class GetDataServiceAdapter : IGetDataServiceAdatper
     {
         private readonly NLog.ILogger logger;
@@ -36,5 +30,4 @@ namespace WebServiceSample.OperationAdapters
             return getDataService.GetDataUsingDataContract(composite);
         }
     }
-
 }

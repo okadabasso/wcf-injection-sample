@@ -17,7 +17,7 @@ using WebServiceSample.Infrastructure.Attributes;
 namespace WebServiceSample
 {
     // メモ: [リファクター] メニューの [名前の変更] コマンドを使用すると、コードと config ファイルの両方で同時にインターフェイス名 "IService1" を変更できます。
-    [SampleContractBehavior]
+    [ServiceContractBehavior]
     [ServiceContract]
     public interface IService1
     {

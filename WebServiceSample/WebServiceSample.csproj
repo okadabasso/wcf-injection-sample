@@ -62,15 +62,17 @@
   <ItemGroup>
     <Compile Include="DependencyInjection\Attributes\ServiceAttribute.cs" />
     <Compile Include="Domain\Services\GetDataService.cs" />
+    <Compile Include="Domain\Services\Implementation\GetDataService.cs" />
     <Compile Include="Infrastructure\Aspects\ServiceOperationAspect.cs" />
     <Compile Include="Infrastructure\Attributes\ServiceOperationAspectAttribute.cs" />
     <Compile Include="Infrastructure\ComponentManagement\ComponentManager.cs" />
     <Compile Include="Infrastructure\ComponentManagement\DryIocInterception.cs" />
-    <Compile Include="OperationAdapters\GetDataServiceAdapter.cs" />
-    <Compile Include="Infrastructure\Behaviors\SampleContractBehaviorAttribute.cs" />
+    <Compile Include="OperationAdapters\IGetDataServiceAdapter.cs" />
+    <Compile Include="Infrastructure\Behaviors\ServiceContractBehaviorAttribute.cs" />
     <Compile Include="Infrastructure\Attributes\ServiceOperationAdapterAttribute.cs" />
-    <Compile Include="Infrastructure\Behaviors\SampleInstanceProvider.cs" />
+    <Compile Include="Infrastructure\Behaviors\ServiceInstanceProvider.cs" />
     <Compile Include="IService1.cs" />
+    <Compile Include="OperationAdapters\Implementation\GetDataServiceAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service1.cs" />
   </ItemGroup>

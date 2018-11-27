@@ -6,70 +6,56 @@ using System.Text;
 using System.Threading.Tasks;
 using DryIoc;
 using NLog;
+using WebServiceSample;
 using WebServiceSample.Infrastructure.Aspects;
 using WebServiceSample.Infrastructure.Behavioirs;
 using WebServiceSample.DependencyInjection.Attributes;
+using WebServiceSample.Domain.Services;
+using WebServiceSample.OperationAdapters;
+using WebServiceSample.OperationAdapters.Implementation;
+using WebServiceSample.Domain.Services.Implementation;
 
 namespace WebServiceSample.Infrastructure.ComponentManagement
 {
     class ComponentManager
     {
-        static object o = new object();
+        static readonly object lockObject = new object();
         static Container container = null;
 
         public static void Configure()
         {
-            lock (o)
-            {
-                if (container == null)
-                {
-                    container = new Container();
-                    ConfigureLogger();
-                    ConfigureOperationAdapters();
-                    ConfigureDomain();
-                }
-            }
-
-
-        }
-
-        private static void ConfigureDomain()
-        {
-            container.RegisterMany(
-                typeof(ComponentManager).Assembly.GetTypes().Where(t => t.GetInterfaces().Where(i => i.GetCustomAttribute<ServiceAttribute>() != null).Any()),
-                serviceTypeCondition: t => t.GetCustomAttribute<ServiceAttribute>() != null,
-                reuse: Reuse.Scoped
-
-                );
-
-        }
-
-        private static void ConfigureOperationAdapters()
-        {
-            container.Register<ServiceOperationAspect>(ifAlreadyRegistered: IfAlreadyRegistered.Keep);
-            // scoped as IFoo
-            container.RegisterMany(
-                typeof(ComponentManager).Assembly.GetTypes().Where(t => t.GetInterfaces().Where(i => i.GetCustomAttribute<OperationAdapterAttribute>() != null).Any()),
-                serviceTypeCondition: t => t.GetCustomAttribute<OperationAdapterAttribute>() != null,
-                reuse: Reuse.Scoped
-
-                );
-        }
-
-        private static void ConfigureLogger()
-        {
-            //NLog.LogManager.LoadConfiguration("NLog.config");
+            container = new Container();
+            // logger
             container.Register<ILogger>(
                 made: Made.Of(
                         () => LogManager.GetLogger(Arg.Index<string>(0)),
                         request => request.Parent.ImplementationType.FullName
                 )
             );
+            // operation adapters
+            container.Register<ServiceOperationAspect>(ifAlreadyRegistered: IfAlreadyRegistered.Keep);
+            container.Register<IGetDataServiceAdatper, GetDataServiceAdapter>(reuse: Reuse.Scoped);
+            // domain
+            container.Register<IGetDataService, GetDataService>(reuse: Reuse.Scoped);
+
+            // WCF Service contract
+            container.Register<Service1>();
+            container.Intercept<Service1, ServiceOperationAspect>();
         }
 
-        public static Container GetContainer()
+        public static Container Current
         {
-            return container;
+            get
+            {
+                lock (lockObject)
+                {
+                    if (container == null)
+                    {
+                        Configure();
+                    }
+                }
+                return container;
+            }
         }
     }
 }
